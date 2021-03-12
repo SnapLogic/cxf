@@ -111,9 +111,6 @@ public final class SAAJStreamWriter extends OverlayW3CDOMStreamWriter {
             if (namespace != null
                 && namespace.equals(getEnvelopeURI())) {
                 adjustPrefix((Element)nd2, pfx);
-                if ("Envelope".equals(nd2.getLocalName())) {
-                    adjustPrefix(getEnvelope().getHeader(), pfx);
-                }
             }
         } catch (SOAPException e) {
             //ignore, fallback
@@ -131,11 +128,7 @@ public final class SAAJStreamWriter extends OverlayW3CDOMStreamWriter {
                 && namespace.equals(getEnvelopeURI())) {
                 if ("Envelope".equals(local)) {
                     setChild(adjustPrefix(getEnvelope(), prefix), false);
-                    adjustPrefix(getEnvelope().getHeader(), prefix);
                     adjustPrefix(getEnvelope().getBody(), prefix);
-                    if (getEnvelope().getHeader() != null) {
-                        getEnvelope().removeChild(getEnvelope().getHeader());
-                    }
                     if (getEnvelope().getBody() != null) {
                         getEnvelope().removeChild(getEnvelope().getBody());
                     }
@@ -151,6 +144,8 @@ public final class SAAJStreamWriter extends OverlayW3CDOMStreamWriter {
                     if (getEnvelope().getHeader() == null) {
                         getEnvelope().addHeader();
                     }
+                    // As part of [SNAP-7475], not sure how to handle L149
+                    // I am keeping it as is for now
                     setChild(adjustPrefix(getEnvelope().getHeader(), prefix), false);
                     return;
                 } else if ("Fault".equals(local)) {

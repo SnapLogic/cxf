@@ -45,6 +45,8 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ParseBodyTest {
     static final String[] DATA = {
@@ -124,8 +126,16 @@ public class ParseBodyTest {
 
         DocumentBuilder db = dbf.newDocumentBuilder();
         db.setEntityResolver(new NullResolver());
-        StaxUtils.read(db, reader, false);
-
+        try {
+            StaxUtils.read(db, reader, false);
+            fail();
+        } catch (Exception expected) {
+            assertTrue(expected.getMessage().contains("Undeclared namespace prefix \"env\""));
+            // SNAP-14596:
+            //  This is expected with the SnapLogic cxf-rt-bindings-soap
+            //  customization which reverts the CXF <Header> element namespace
+            //  behavior back to pre 3.1.7 version. See comment in the Snap_v4 root pom.
+        }
     }
 
     private void testUsingStaxUtilsCopyWithSAAJWriter(int n) throws Exception {
